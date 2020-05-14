@@ -1,0 +1,19 @@
+groups:
+  - name: general
+    rules:
+      - alert: mysql_down
+        expr: mysql_up{job="mysqlexporter01"} == 0 or absent(mysql_up{job="mysqlexporter01"}) == 1
+        for: 5s
+        labels:
+          severity: critical
+        annotations:
+          summary: "MySql is down"
+          description: "MySql is down, help!"
+      - alert: mysql_locked
+        expr: mysql_global_status_innodb_row_lock_current_waits{job="mysqlexporter01"} >= 1
+        for: 5s
+        labels:
+          severity: minimal
+        annotations:
+          summary: "MySql {{ $labels.job }} has some threads waiting for a row to be unlocked"
+          description: ""

@@ -1,0 +1,46 @@
+version: '2.4'
+
+networks:
+    monitoring:
+        driver: bridge
+
+volumes:
+    prometheus_data: {}
+    caddy_data: {}
+
+services:
+    prometheus:
+        image: prom/prometheus:v2.18.1
+        container_name: prometheus
+        volumes:
+          - ../conf/prometheus:/etc/prometheus:ro
+          - prometheus_data:/prometheus
+        command:
+          - '--config.file=/etc/prometheus/prometheus.yml'
+          - '--web.external-url=http://0.0.0.0:9090'
+          - '--storage.tsdb.path=/prometheus'
+          - '--storage.tsdb.retention=5d' # TODO: decide a value
+          - '--web.enable-lifecycle'
+        expose:
+          - 9090
+        networks:
+          - monitoring
+        # user: root # TODO: remove
+        restart: always
+
+    ingress_monitoring01:
+        image: caddy:2.0.0-alpine
+        container_name: ingress_monitoring01
+        hostname: ingress_monitoring01
+        ports:
+            - "9090:9090"
+            - "8080:8080"
+        volumes:
+            - ../conf/caddy/Caddyfile_monitoring:/etc/caddy/Caddyfile:ro
+            - caddy_data:/data
+        # environment:
+        #     - ADMIN_USER=${CADDY_USER}
+        #     - ADMIN_PASSWORD=${CADDY_PASSWORD}
+        networks:
+            - monitoring
+        restart: always
