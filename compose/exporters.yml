@@ -1,0 +1,20 @@
+version: '2.4'
+
+networks:
+    monitoring:
+        driver: bridge
+    application:
+        driver: bridge
+
+services:
+    mysqlexporter:
+        image: prom/mysqld-exporter:v0.12.1
+        container_name: mysqlexporter
+        environment:
+            - DATA_SOURCE_NAME=prometheus:${MYSQL_PROM_PASSWORD:?missing_MYSQL_PROM_PASSWORD}@(mysql01:3306)/
+        expose:
+            - 9104
+        networks:
+            - monitoring
+            - application
+        restart: always
