@@ -1,0 +1,58 @@
+version: '2.4'
+
+networks: 
+    application:
+        driver: bridge
+    monitoring:
+        driver: bridge
+
+volumes:
+    mysql01_data: {}
+
+services:
+    mysql01:
+        image: mysql:8.0.20
+        container_name: mysql01
+        volumes:
+            - mysql01_data:/var/lib/mysql
+            - ../conf/mysql/init_scripts/:/docker-entrypoint-initdb.d/:ro
+        environment:
+            - MYSQL_USER=application
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD:?missing_MYSQL_PASSWORD}
+            - MYSQL_DATABASE=application
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:?missing_MYSQL_ROOT_PASSWORD}
+        expose:
+            - 3306
+        networks:
+            - application
+            - monitoring
+        restart: always
+        cap_add:
+            - SYS_NICE # TODO: investigate if it is ok to use # https://github.com/docker-library/mysql/issues/303
+        command: --default-authentication-plugin=mysql_native_password
+        healthcheck:
+            start_period: 20s
+            interval: 5s
+            test: ["CMD", "mysqladmin" ,"ping", "-h", "mysql01"]
+            timeout: 20s
+            retries: 10
+    
+    application:
+        image: severalnines/sysbench # I trust Severalnines, best tutorials for tuning Postgres
+        container_name: application
+        environment:
+            - MYSQL_USER=application
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD:?missing_MYSQL_PASSWORD}
+            - MYSQL_HOST=mysql01
+            - MYSQL_PORT=3306
+            - MYSQL_DATABASE=application
+        volumes:
+            - ../conf/application/scripts:/tmp/scripts
+        networks:
+            - application
+        depends_on:
+            mysql01:
+                condition: service_healthy
+        command: /tmp/scripts/run.sh
+        
+            
