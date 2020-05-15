@@ -3,7 +3,6 @@
     ansible_base_path: "{{ role_path }}/../.."
   tags:
     - update
-    - update-full
 
 - name: Set dir permission for application's home
   file:
@@ -26,9 +25,7 @@
     - update
     - update-full
   with_items:
-    - compose
-    - conf
-    - scripts
+    - update
 
 - name: Remove secrets
   file:
@@ -36,6 +33,9 @@
     state: absent
   with_items:
     - compose/.env
+  tags:
+    - update
+    - secrets
 
 - name: Set file permissions for application's home
   file:
@@ -45,7 +45,6 @@
     mode: u=rwX,g=rwX,o=rX
   tags:
     - update
-    - update-full
 
 - name: Copy secrets
   copy:
@@ -56,3 +55,6 @@
     mode: u=rwx,g=rx,o=
   with_items:
     - compose/.env
+  tags:
+    - update
+    - secrets

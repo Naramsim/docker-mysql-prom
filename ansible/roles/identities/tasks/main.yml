@@ -11,6 +11,3 @@
     user: ale
     state: present
     key: "{{ lookup('file', 'files/public_keys/ale') }}"
-  tags:
-    - update-full
-

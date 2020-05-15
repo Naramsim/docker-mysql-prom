@@ -11,4 +11,4 @@
   become: true
   roles:
     # - disk
-    - application
+    - {role: application, tags: role_application}
