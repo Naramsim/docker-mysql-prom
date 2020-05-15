@@ -3,12 +3,12 @@
   roles:
     - pip
     - os
-    - docker
     - identities
-    
-- hosts: application
+    - lvm
+    - docker
+
+- hosts: server1
   become: true
   roles:
     # - disk
-    - lvm
     - application

@@ -43,6 +43,33 @@
     state: started
     enabled: true
 
+- name: Create docker.service.d
+  file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+    owner: root
+    group: docker
+    mode: 0755
+
+- name: Change and apply dockerd settings
+  copy:
+    src: files/override.conf
+    dest: /etc/systemd/system/docker.service.d/override.conf
+    owner: root
+    group: docker
+    mode: 0644
+  register: dockerd
+
+- name: Force systemd to reread configs
+  systemd:
+    daemon_reload: yes
+
+- name: Restart Docker service
+  service:
+    state: restarted
+    name: docker
+  when: dockerd.changed
+
 - name: Install Docker Compose
   get_url:
     url: https://github.com/docker/compose/releases/download/1.25.0/docker-compose-Linux-x86_64
