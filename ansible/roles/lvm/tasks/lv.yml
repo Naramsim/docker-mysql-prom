@@ -9,7 +9,6 @@
   loop: "{{ vg.lvnames }}"
   loop_control:
     loop_var: lv
-  become: true
   when:
     - vg.create is defined
     - vg.create|bool
