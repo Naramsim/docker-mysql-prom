@@ -1,0 +1,11 @@
+- hosts: all
+  become: true
+  roles:
+    - pip
+    - docker
+    
+- hosts: application
+  become: true
+  roles:
+    - disk
+    # - application
