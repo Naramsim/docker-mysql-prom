@@ -1,11 +1,11 @@
 - hosts: all
   become: true
   roles:
-    - pip
-    - os
-    - identities
-    - lvm
-    - docker
+    - {role: pip, tags: role_pip}
+    - {role: os, tags: role_os}
+    - {role: identities, tags: role_identities}
+    - {role: lvm, tags: role_lvm}
+    - {role: docker, tags: role_docker}
 
 - hosts: server1
   become: true
