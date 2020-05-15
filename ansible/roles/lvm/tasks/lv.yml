@@ -1,0 +1,19 @@
+- name: Create new LVs
+  lvol:
+    vg: "{{ vg.vgname }}"
+    lv: "{{ lv.lvname }}"
+    size: "{{ lv.size }}"
+    shrink: false
+    opts: "{{ lv.opts | default('') }}"
+    state: present
+  loop: "{{ vg.lvnames }}"
+  loop_control:
+    loop_var: lv
+  become: true
+  when:
+    - vg.create is defined
+    - vg.create|bool
+    - lv is defined
+    - lv != 'None'
+    - lv.create is defined
+    - lv.create|bool

@@ -2,10 +2,13 @@
   become: true
   roles:
     - pip
+    - os
     - docker
+    - identities
     
 - hosts: application
   become: true
   roles:
-    - disk
-    # - application
+    # - disk
+    - lvm
+    - application

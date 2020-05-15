@@ -1,0 +1,89 @@
+# Taken from https://github.com/mrlesmithjr/ansible-manage-lvm (MIT)
+# Analyzed and tested
+
+- name: Install LVM
+  package:
+    name: lvm2
+    state: present
+  become: true
+
+- name: Install SG3 utils
+  package:
+    name: sg3_utils
+    state: present
+  become: true
+
+- name: Install XFS tools
+  package:
+    name: "xfsprogs"
+    state: "present"
+  become: true
+  loop: "{{ lookup('subelements', lvm_groups, 'lvnames', {'skip_missing': True}, wantlist=True) }}"
+  loop_control:
+    loop_var: lv
+  when:
+    - lv.1 is defined
+    - lv.1 != "None"
+    - lv.1.filesystem is defined
+    - lv.1.filesystem == "xfs"
+    - lv.1.create is defined
+    - lv.1.create|bool
+
+- name: Check for scsi devices
+  command: sg_scan
+  become: true
+  register: scsi_devices
+  changed_when: false
+
+- name: Rescan for new disks
+  command: /usr/bin/rescan-scsi-bus.sh
+  become: true
+  changed_when: false
+
+- name: Create new VGs
+  lvg:
+    vg: "{{ item.vgname }}"
+    pvs: "{{ item.disks | join(',') }}"
+    state: present
+  become: true
+  loop: "{{ lvm_groups }}"
+  when:
+    - item.create is defined
+    - item.create|bool
+
+- name: Create LVs
+  include_tasks: lv.yml
+  loop: "{{ lvm_groups }}"
+  loop_control:
+    loop_var: vg
+
+- name: Create filesystems
+  include_tasks: fs.yml
+  loop: "{{ lvm_groups }}"
+  loop_control:
+    loop_var: vg
+
+- name: Remove LVs
+  lvol:
+    vg: "{{ item.0.vgname }}"
+    lv: "{{ item.1.lvname }}"
+    state: absent
+    force: true
+  become: true
+  loop: "{{ lvm_groups|subelements('lvnames') }}"
+  when:
+    - item.1 is defined
+    - item.1 != 'None'
+    - item.1.create is defined
+    - not item.1.create|bool
+
+- name: Remove VGs
+  lvg:
+    vg: "{{ item.vgname }}"
+    pvs: "{{ item.disks | join(',') }}"
+    state: absent
+  become: true
+  loop: "{{ lvm_groups }}"
+  when:
+    - item.create is defined
+    - not item.create|bool

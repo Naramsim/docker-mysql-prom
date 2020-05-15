@@ -1,0 +1,14 @@
+---
+
+- name: Update cache
+  package:
+    update_cache: yes
+
+- name: Install required software
+  package:
+    state: present
+    update_cache: no
+    pkg:
+      - git
+      - curl
+      - nano

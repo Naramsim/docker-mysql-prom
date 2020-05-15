@@ -1,0 +1,58 @@
+- name: Save ansible base path variable for future use
+  set_fact:
+    ansible_base_path: "{{ role_path }}/../.."
+  tags:
+    - update
+    - update-full
+
+- name: Set dir permission for application's home
+  file:
+    state: directory
+    path: /opt/application
+    group: docker
+    mode: 0775
+  tags:
+    - update
+
+- name: Install application devops in application's home
+  synchronize:
+    src: "{{ ansible_base_path }}/../{{ item }}"
+    dest: /opt/application
+    archive: no
+    recursive: yes
+    rsync_opts:
+      - "--exclude=.env"
+  tags:
+    - update
+    - update-full
+  with_items:
+    - compose
+    - conf
+    - scripts
+
+- name: Remove secrets
+  file:
+    path: "/opt/application/{{ item }}"
+    state: absent
+  with_items:
+    - compose/.env
+
+- name: Set file permissions for application's home
+  file:
+    path: /opt/application
+    group: docker
+    recurse: yes
+    mode: u=rwX,g=rwX,o=rX
+  tags:
+    - update
+    - update-full
+
+- name: Copy secrets
+  copy:
+    src: "{{ ansible_base_path }}/../{{ item }}"
+    dest: "/opt/application/{{ item }}"
+    owner: root
+    group: docker
+    mode: u=rwx,g=rx,o=
+  with_items:
+    - compose/.env

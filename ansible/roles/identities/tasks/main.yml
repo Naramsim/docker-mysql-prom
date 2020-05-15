@@ -1,0 +1,16 @@
+---
+- name: Create user for Alessandro
+  user:
+    append: yes
+    groups: ['docker', 'root']
+    name: ale
+    shell: /bin/bash
+
+- name: Set authorized key for Alessandro from file
+  authorized_key:
+    user: ale
+    state: present
+    key: "{{ lookup('file', 'files/public_keys/ale') }}"
+  tags:
+    - update-full
+
