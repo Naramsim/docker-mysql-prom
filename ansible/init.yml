@@ -30,9 +30,17 @@
         state: present
         key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
 
-    # - name: Disable password authentication for root
-    #   lineinfile:
-    #     path: /etc/ssh/sshd_config
-    #     state: present
-    #     regexp: '^#?PermitRootLogin'
-    #     line: 'PermitRootLogin prohibit-password'
+    - name: Disable authentication as root
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        state: present
+        regexp: '^PermitRootLogin'
+        line: 'PermitRootLogin no'
+      register: ssh_config_change
+
+    - name: Restart SSH service
+      service:
+        name: ssh
+        state: restarted
+      when: ssh_config_change.changed
+
