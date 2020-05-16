@@ -3,11 +3,11 @@
   user:
     append: yes
     groups: ['docker', 'root']
-    name: ale
+    name: Ale
     shell: /bin/bash
 
 - name: Set authorized key for Alessandro from file
   authorized_key:
-    user: ale
+    user: Ale
     state: present
-    key: "{{ lookup('file', 'files/public_keys/ale') }}"
+    key: "{{ lookup('file', 'files/public_keys/Ale') }}"
