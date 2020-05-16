@@ -1,0 +1,13 @@
+- hosts: all
+  become: true
+  vars_prompt:
+    - name: script_name
+      prompt: "Do you want to `bootstrap` or `destroy` the application?"
+      private: no
+  tasks:
+    - name: Run script
+      command: "bash {{ script_name }}.sh"
+      register: out
+      args:
+        chdir: /opt/application/scripts
+    - debug: var=out.stdout_lines[0]
