@@ -12,15 +12,9 @@
 
 Please look at the code
 
-## Init
+## Config
 
 There is currently no IaaS code so you have to create on GCP a CentOS machine with a `disk-1` disk attached. Then change the fixed IP you find in the `hosts.yml`.
-
-```sh
-ansible-playbook -e 'ansible_user=<user_of_public_key>' -i hosts.yml init.yml
-```
-
-This will create the user `ansible` on the machine which will be then used by ansible.
 
 Before running ansible you should make a copy of the `compose/.env.sample` and change the password written in there.
 
@@ -30,6 +24,15 @@ nano .env
 ```
 
 You should also change the user and public_key in `ansible/roles/identities/`.
+
+## Init
+
+```sh
+cd ansible
+ansible-playbook -e 'ansible_user=<user_of_public_key>' -i hosts.yml init.yml
+```
+
+This will create the user `ansible` on the machine which will be then used by ansible.
 
 To run ansible:
 
