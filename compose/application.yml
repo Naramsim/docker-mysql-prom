@@ -29,7 +29,7 @@ services:
         restart: always
         cap_add:
             - SYS_NICE # TODO: investigate if it is ok to use # https://github.com/docker-library/mysql/issues/303
-        command: --default-authentication-plugin=mysql_native_password
+        command: --default-authentication-plugin=mysql_native_password --disable-log-bin
         healthcheck:
             start_period: 20s
             interval: 5s
