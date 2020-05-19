@@ -26,7 +26,6 @@ services:
           - 9090
         networks:
           - monitoring
-        # user: root # TODO: remove
         restart: always
 
     ingress_monitoring01:
