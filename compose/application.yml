@@ -50,6 +50,7 @@ services:
             - ../conf/application/scripts:/tmp/scripts
         networks:
             - application
+        restart: always
         depends_on:
             mysql01:
                 condition: service_healthy
