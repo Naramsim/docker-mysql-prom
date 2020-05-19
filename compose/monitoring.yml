@@ -20,12 +20,12 @@ services:
           - '--web.external-url=http://0.0.0.0:9090'
           - '--storage.tsdb.path=/prometheus'
           - '--storage.tsdb.retention=5d' # TODO: decide a value
+          - '--storage.tsdb.retention.size=5GB'
           - '--web.enable-lifecycle'
         expose:
           - 9090
         networks:
           - monitoring
-        # user: root # TODO: remove
         restart: always
 
     ingress_monitoring01:
